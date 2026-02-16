@@ -1,22 +1,34 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { PawPrint, Search } from "lucide-react"; // 🐾 + 🔍 icons
+import { PawPrint, Search, ChevronDown } from "lucide-react";
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [findPetOpen, setFindPetOpen] = useState(false);
+  const [aboutPetsOpen, setAboutPetsOpen] = useState(false);
+
+  const toggleFindPet = () => {
+    setFindPetOpen(!findPetOpen);
+    setAboutPetsOpen(false);
+  };
+
+  const toggleAboutPets = () => {
+    setAboutPetsOpen(!aboutPetsOpen);
+    setFindPetOpen(false);
+  };
 
   return (
     <nav className="bg-orange-500 text-white px-8 py-4 flex justify-between items-center shadow-md sticky top-0 z-50">
-      
-      {/* Left side - Paw + Logo */}
+
+      {/* Logo */}
       <div className="flex items-center space-x-2 text-2xl font-bold">
         <PawPrint size={30} className="text-blue-400" />
         <span>FureverHome</span>
       </div>
 
-      {/* Middle - Search + Navigation Links (desktop) */}
-      <div className="hidden md:flex items-center space-x-10">
-        {/* Search bar */}
+      {/* Middle Section */}
+      <div className="flex items-center space-x-10 relative">
+
+        {/* Search */}
         <div className="flex items-center bg-white rounded-full px-3 py-1">
           <Search size={18} className="text-orange-500 mr-2" />
           <input
@@ -26,119 +38,94 @@ const Navbar = () => {
           />
         </div>
 
-        {/* Navigation Links */}
-        <ul className="flex space-x-12 text-lg">
+        {/* Nav Links */}
+        <ul className="flex space-x-10 text-lg items-center">
+
           <li>
-            <Link to="/" className="hover:text-gray-400 transition">
+            <Link to="/" className="hover:text-gray-300 transition">
               Home
             </Link>
           </li>
-          <li>
-            <Link to="/AdoptionInfo" className="hover:text-gray-400 transition">
-              Adoption Information
-            </Link>
+
+          {/* FIND A PET (CLICK DROPDOWN) */}
+          <li className="relative">
+            <button
+              onClick={toggleFindPet}
+              className="flex items-center gap-1 hover:text-gray-300 transition focus:outline-none"
+            >
+              Find a Pet <ChevronDown size={18} />
+            </button>
+
+            {findPetOpen && (
+              <div className="absolute top-full left-0 mt-2 bg-white text-orange-500 rounded-lg shadow-lg w-56">
+                <Link to="/find-by-location" className="block px-4 py-2 hover:bg-orange-100 rounded-t-lg">
+                  📍 Find by Location
+                </Link>
+                <Link to="/find-dog" className="block px-4 py-2 hover:bg-orange-100">
+                  🐶 Find a Dog
+                </Link>
+                <Link to="/find-cat" className="block px-4 py-2 hover:bg-orange-100">
+                  🐱 Find a Cat
+                </Link>
+                <Link to="/find-other-pets" className="block px-4 py-2 hover:bg-orange-100 rounded-b-lg">
+                  🐾 Find Other Pets
+                </Link>
+              </div>
+            )}
           </li>
-          <li>
-            <Link to="/about" className="hover:text-gray-400 transition">
-              About
-            </Link>
+
+          {/* ALL ABOUT PETS (CLICK DROPDOWN) */}
+          <li className="relative">
+            <button
+              onClick={toggleAboutPets}
+              className="flex items-center gap-1 hover:text-gray-300 transition focus:outline-none"
+            >
+              All About Pets <ChevronDown size={18} />
+            </button>
+
+            {aboutPetsOpen && (
+              <div className="absolute top-full left-0 mt-2 bg-white text-orange-500 rounded-lg shadow-lg w-56">
+                <Link to="/care-tips" className="block px-4 py-2 hover:bg-orange-100 rounded-t-lg">
+                  🧼 Pet Care Tips
+                </Link>
+                <Link to="/breeds" className="block px-4 py-2 hover:bg-orange-100">
+                  📖 Breeds Guide
+                </Link>
+                <Link to="/training" className="block px-4 py-2 hover:bg-orange-100">
+                  🎾 Training & Behavior
+                </Link>
+                <Link to="/health" className="block px-4 py-2 hover:bg-orange-100 rounded-b-lg">
+                  ❤️ Health & Nutrition
+                </Link>
+              </div>
+            )}
           </li>
+
           <li>
-            <Link to="/services" className="hover:text-gray-400 transition">
+            <Link to="/services" className="hover:text-gray-300 transition">
               Services
             </Link>
           </li>
+
           <li>
-            <Link to="/contact" className="hover:text-gray-400 transition">
+            <Link to="/contact" className="hover:text-gray-300 transition">
               Contact
             </Link>
           </li>
+
         </ul>
       </div>
 
-      {/* Right side - Sign In */}
-      <div className="hidden md:block">
+      {/* Sign In */}
+      <div>
         <Link
-          to="/signin"
+          to="/login"
           className="bg-white text-orange-500 px-4 py-2 rounded-lg font-semibold hover:bg-orange-100 transition"
         >
           Sign In
         </Link>
       </div>
 
-      {/* Mobile Hamburger */}
-      <div className="md:hidden flex items-center">
-        <button onClick={() => setIsOpen(!isOpen)}>
-          <svg
-            className="w-6 h-6 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {isOpen ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            )}
-          </svg>
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-orange-500 px-6 pb-4 flex flex-col space-y-3">
-          <Link to="/" className="flex items-center text-white hover:text-gray-300 transition" onClick={() => setIsOpen(false)}>
-            <PawPrint className="mr-2" /> FureverHome
-          </Link>
-
-          {/* Search bar */}
-          <div className="flex items-center bg-white rounded-full px-3 py-1">
-            <Search size={18} className="text-orange-500 mr-2" />
-            <input
-              type="text"
-              placeholder="Search pets..."
-              className="outline-none text-gray-700 placeholder-gray-400 w-full bg-transparent"
-            />
-          </div>
-
-          {/* Links */}
-          <Link to="/" className="text-white hover:text-gray-300 transition" onClick={() => setIsOpen(false)}>
-            Home
-          </Link>
-          <Link to="/AdoptionInfo" className="text-white hover:text-gray-300 transition" onClick={() => setIsOpen(false)}>
-            Adoption Information
-          </Link>
-          <Link to="/about" className="text-white hover:text-gray-300 transition" onClick={() => setIsOpen(false)}>
-            About
-          </Link>
-          <Link to="/services" className="text-white hover:text-gray-300 transition" onClick={() => setIsOpen(false)}>
-            Services
-          </Link>
-          <Link to="/contact" className="text-white hover:text-gray-300 transition" onClick={() => setIsOpen(false)}>
-            Contact
-          </Link>
-
-          {/* Sign In button */}
-          <Link
-            to="/signin"
-            className="bg-white text-orange-500 px-4 py-2 rounded-lg font-semibold hover:bg-orange-100 transition"
-            onClick={() => setIsOpen(false)}
-          >
-            Sign In
-          </Link>
-        </div>
-      )}
     </nav>
   );
 };
