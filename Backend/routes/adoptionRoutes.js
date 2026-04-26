@@ -1,10 +1,14 @@
 import express from "express";
 import Adoption from "../models/Adoption.js";
 import Notification from "../models/Notification.js";
+import Shelter from "../models/Shelter.js";
+import Pet from "../models/Pet.js";
+import ShelterNotification from "../models/ShelterNotification.js";
+import { sendNewApplicationEmail } from "../utils/shelterEmail.js";
 
 const router = express.Router();
 
-//  CREATE ADOPTION REQUEST 
+// CREATE ADOPTION REQUEST
 router.post("/", async (req, res) => {
   try {
     const { petId, petName } = req.body;
@@ -22,6 +26,37 @@ router.post("/", async (req, res) => {
 
     await adoption.save();
 
+    // Notify shelter via email + in-app
+    try {
+      const pet = await Pet.findById(petId);
+      if (pet?.shelterId) {
+        const shelter = await Shelter.findById(pet.shelterId);
+        if (shelter) {
+          // Send email to shelter
+          await sendNewApplicationEmail(
+            shelter,
+            {
+              name:  req.body.name,
+              email: req.body.email,
+              phone: req.body.phone,
+            },
+            petName
+          );
+
+          // In-app notification for shelter
+          await ShelterNotification.create({
+            shelterId: shelter._id,
+            type:      "application",
+            title:     `New application for ${petName}`,
+            message:   `${req.body.name} has applied to adopt ${petName}. Review their application in your dashboard.`,
+            link:      "/shelter/dashboard/applications",
+          });
+        }
+      }
+    } catch (notifErr) {
+      console.error("Shelter notification error:", notifErr.message);
+    }
+
     res.status(201).json({
       message: "Adoption questionnaire submitted successfully",
       adoption,
@@ -35,7 +70,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-//  GET ALL ADOPTION REQUESTS 
+// GET ALL ADOPTION REQUESTS
 router.get("/", async (req, res) => {
   try {
     const adoptions = await Adoption.find().sort({ createdAt: -1 });
@@ -49,7 +84,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-//  UPDATE STATUS 
+// UPDATE STATUS
 router.put("/:id", async (req, res) => {
   try {
     const { status } = req.body;
@@ -68,8 +103,7 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ message: "Adoption request not found" });
     }
 
-    // Create notification for the user 
-    // Only fire if the adoption has a userId saved on it
+    // Notify user
     if (updated.userId) {
       const notifMap = {
         approved: {
@@ -98,12 +132,10 @@ router.put("/:id", async (req, res) => {
             petId:      updated.petId,
           });
         } catch (notifErr) {
-          // Don't fail the whole request if notification fails
           console.error("Notification create error:", notifErr.message);
         }
       }
     }
-    
 
     res.json({
       message: "Status updated successfully",
