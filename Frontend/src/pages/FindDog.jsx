@@ -50,7 +50,6 @@ const FindDog = () => {
       <h1 className="text-3xl font-bold text-orange-600 mb-6">Find a Dog 🐶</h1>
 
       <div className="flex gap-8">
-        {/* FILTER SIDEBAR */}
         <aside className="w-1/4 bg-white p-5 rounded-xl shadow-md h-fit sticky top-24">
           <h2 className="text-xl font-semibold text-orange-500 mb-4">Filters</h2>
 
@@ -89,7 +88,6 @@ const FindDog = () => {
           </button>
         </aside>
 
-        {/* DOG LIST */}
         <main className="w-3/4">
           {loading ? (
             <p className="text-gray-500 text-lg">Loading dogs...</p>
